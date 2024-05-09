@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko-KR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/my_reset.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="wrap">
+        <header class="hd mw">
+            <h1><a href="/">로고</a></h1>
+            <nav>
+                <a href="/">목록보기</a>
+                <% if(user){ %>
+                    <a href="/write">글작성</a>
+                    <a href="/mypage"><%= user.username %>님 환영합니다</a>
+                    <a href="/logout">로그아웃</a>
+                <% } else { %>    
+                    <a href="/login">로그인</a>
+                    <a href="/signup">회원가입</a>
+                <% } %>    
+  
+            </nav>
+            <div class="darkMode">
+                <i class="fa-regular fa-sun"></i>
+                <i class="fa-regular fa-moon"></i>
+            </div>
+            <div class="ham"><i class="fa-solid fa-bars"></i></div>
+        </header>
+
+
+        <script>
+            const hamBtn = document.querySelector('.ham');
+            const header = document.querySelector('.hd')
+            const darkMode = document.querySelector('.darkMode')
+
+            hamBtn.addEventListener('click', ()=>{
+                header.classList.toggle('on')
+            })
+
+            const darkModeStatus = localStorage.getItem('darkMode')
+            if(darkModeStatus === 'on'){
+                document.body.classList.add('dark')
+                darkMode.classList.add('on')
+            }
+
+            darkMode.addEventListener('click', (e)=>{
+                e.target.classList.toggle('on')
+                document.body.classList.toggle('dark')
+
+                if(document.body.classList.contains('dark')){
+                    localStorage.setItem('darkMode', 'on')
+                }else{
+                    localStorage.setItem('darkMode', 'off')
+                }
+            })
+
+
+
+
+        </script>

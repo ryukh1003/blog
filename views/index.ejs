@@ -1,0 +1,79 @@
+<%- include('header.ejs') %>
+<main class="mw">
+    <h2>THE BLOG</h2>
+    <h3>All blog posts </h3>
+    <ul class="lists">
+        <% if(posts.length ==0){%>
+            <li> 등록된 리스트가 없습니다.</li>
+        <% } else { %>
+            <% posts.map(post => { %> 
+                <li class="card">
+                    <p hidden><%= post._id %></p>
+                    <div class="imgArea">
+                        <% if(post.postImgPath == null){ %>
+                            <img src="/noimg.png" alt="이미지 없음">
+                        <% } else { %>
+                        <img src="<%= post.postImgPath %>" alt="<%= posts.title %>">
+                        <% } %>
+                    </div>
+                    <div class="info">
+                        <p>
+                            <span class="user"><%= post.username %></span> / 
+                            <span class="createDate">
+                                <%
+                                    const serverPostDate = new Date(post.createAtDate)
+                                    const datePostStr = serverPostDate.toISOString().slice(0,10)
+                                %>
+                                <%= datePostStr %>
+                            </span>
+                        </p>
+                        <h4 class="title"><%= post.title %></h4>
+                        <p class="desc"><%= post.content %></p>
+                    </div>
+                     <a class="more" href="/detail/<%= post._id %>">자세히보기</a>
+                </li>
+            <% }).join('') %> 
+        <% } %> 
+    </ul>
+</main>
+
+<script>
+    let page = 1;
+    let inProgress = false;
+
+    window.onscroll = async () => {
+        if (inProgress) return;
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 10) { 
+            inProgress = true;
+            page++;
+            const response = await fetch(`/getPosts?page=${page}&limit=3`); 
+            const newPosts = await response.json();
+            const ul = document.querySelector('.lists');
+            newPosts.forEach(post => {
+                const li = document.createElement('li');
+                li.className = 'card';
+                li.innerHTML = `
+                    <p hidden>${post._id}</p>
+                    <div class="imgArea">
+                        ${post.postImgPath == null ? '<img src="/noimg.png" alt="이미지 없음">' : `<img src="${post.postImgPath}" alt="${post.title}">`}
+                    </div>
+                    <div class="info">
+                        <p>
+                            <span class="user">${post.username}</span> / 
+                            <span class="createDate">
+                                ${new Date(post.createAtDate).toLocaleDateString('ko-KR', {year: 'numeric', month: '2-digit', day: '2-digit'})}
+                            </span>
+                        </p>
+                        <h4 class="title">${post.title}</h4>
+                        <p class="desc">${post.content}</p>
+                    </div>
+                    <a class="more" href="/detail/${post._id}">자세히보기</a>
+                `;
+                ul.appendChild(li);
+            });
+            inProgress = false;
+        }
+    };
+</script>
+
+<%- include('footer.ejs') %>

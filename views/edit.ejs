@@ -1,0 +1,30 @@
+<%- include('header.ejs') %>
+<main class="mw edit">
+    <h2>THE BLOG</h2>
+    <h3>수정페이지 </h3>
+    <form action="/edit" method="post" class="writeCon" enctype="multipart/form-data">
+        <input type="hidden" name="_method" value="PUT">
+        <label for="title">제목</label>
+        <input type="text" name="title" id="title" value="<%= posts.title %>" required>
+
+        <input type="text" id="id" name="id" value="<%=posts._id %>" hidden>
+
+        <label for="postimg">이미지첨부</label>
+        <input type="file" id="postimg" name="postimg">
+        <input type="text" id="postimgOld" name="postimgOld" value="<%=posts.postImgPath %>" hidden>
+
+        <div><img src="<%= posts.postImgPath %>" alt="<%= posts.title %>"></div>
+        <label for="content">내용</label>
+        <textarea name="content" id="content" ><%= posts.content %></textarea>
+        <label for="createAtDate" hidden>작성일</label>
+        <input type="date" id="createAtDate" name="createAtDate" hidden >
+        <button type="submit">글작성</button>
+    </form>
+</main>
+<script>
+    let today = new Date().toISOString().slice(0,10)
+    const createAtDate = document.querySelector('#createAtDate')
+    createAtDate.value = today
+
+</script>
+<%- include('footer.ejs') %>

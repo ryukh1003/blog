@@ -1,0 +1,162 @@
+<%- include('header.ejs') %>
+<main class="mw">
+    <h2>THE BLOG</h2>
+    <h3>상세페이지 </h3>
+    <div class="detail">
+        <h4><%= posts.title %></h4>
+        <p>
+            <a href="/personal/<%= posts.userid %>"><%= posts.username %>님</a> / 
+            <%
+            const serverPostDate = new Date(posts.createAtDate)
+            const datePostStr = serverPostDate.toISOString().slice(0,10)
+            %>
+            <%= datePostStr %> / 
+            좋아요 : <%= like.likeTotal %> / 
+            좋아요를 클릭해주신 고마운분들 : 
+            <% if(like.likeMember && Array.isArray(like.likeMember)){ %>
+                <%- like.likeMember.map(m => ` <a href="/personal/${m}">${m}</a>`) %>
+            <% } %>
+           
+        </p>
+        <div class="img">
+            <% if(posts.postImgPath == null){ %>
+                <img src="/noimg.png" alt="이미지 없음">
+            <% } else { %>
+            <img src="<%= posts.postImgPath %>" alt="<%= posts.title %>">
+            <% } %>
+        </div>
+        <div><%= posts.content %></div>
+    </div>
+    <div>
+        <button class="listBtn">목록으로</button>
+        <button class="likeBtn">좋아요</button>
+        <% if(user && user.userid === posts.userid){ %>
+            <button class="editBtn">수정하기</button>
+            <button class="delBtn">삭제하기</button>
+        <% } %>
+    </div>
+    <hr>
+    <div class="comments">
+        <h3>댓글작성</h3>
+        <% if(user){ %>
+        <form id="commentForm">
+            <textarea name="commentText" id="commentText" placeholder="댓글을 입력해 주세요"></textarea>
+            <button type="submit">댓글작성</button>
+        </form>
+        <% } else { %>
+            <p>댓글을 달려면 <a href="/login">로그인</a> 해주세요</p>
+        <% } %>
+
+
+        <ul class="commentList">
+            <% if (!comments) { %>
+                <li>등록된 댓글이 없어요</li>
+            <% } else { %>
+                <% comments.map(data => { %>
+                <li class="comment">
+                    <p><%= data.comment %></p>
+                    <p><a href="/personal/<%= data.userid %>"><%= data.username %></a></p>
+                    <p>
+                        <%
+                        const serverDate = new Date(data.createAtDate)
+                        const dateStr = serverDate.toISOString().slice(0,10)
+                        %>
+                        <%= dateStr %>
+                    </p>
+                </li>
+                <% }) %>
+            <% } %>
+        </ul>
+    </div>
+
+    
+</main>
+<script>
+    const commentForm = document.querySelector('#commentForm')
+    const commentText = document.querySelector('#commentText')
+
+    commentForm.addEventListener('submit', (e)=>{
+        e.preventDefault()
+        const comment = commentText.value.trim()
+
+        if(!comment){
+            alert('댓글을 입력해 주세요')
+            return;
+        }
+
+        fetch('/comment/<%= posts._id %>',{
+            method:'POST',
+            headers:{
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({comment})
+        })//
+        .then(res => res.json())
+        .then(data =>{
+            if(data.success){
+                location.reload()
+            }else{
+                alert('댓글 작성 실패')
+            }
+        })
+
+    })
+
+    const listBtn = document.querySelector('.listBtn')
+    listBtn.addEventListener('click',()=>{
+        location.href= '/'
+    })
+
+    const editBtn = document.querySelector('.editBtn')
+    if(editBtn){
+        editBtn.addEventListener('click', ()=>{
+            location.href= `/edit/<%= posts._id %>`
+        })
+    }
+    
+    const delBtn = document.querySelector('.delBtn')
+    if(delBtn){
+        delBtn.addEventListener('click', ()=>{
+            const postId = `<%= posts._id %>`
+            fetch(`/delete/${postId}`, {
+                method:'POST',
+                headers:{
+                    'Content-type':'application/json',
+                },
+                body :JSON.stringify({_method: 'DELETE'})
+            }).then(res => {
+                console.log(res);
+                if(res.ok){
+                    //삭제성공시
+                    alert('삭제완료')
+                    location.href = '/';
+                }
+            })
+        })
+    }
+
+    const likeBtn = document.querySelector('.likeBtn')
+    const user = `<%= user ? user.userid : '' %>`
+    likeBtn.addEventListener('click', async ()=>{
+        if(!user){
+            alert('로그인이 필요합니다.')
+            window.location.href='/login'
+        } else {
+           fetch('/like/<%= posts._id%>', {
+                method:'POST',
+            }).then(res => {
+                if(res.ok){
+                    alert('성공')
+                    location.reload()
+                    }
+                } 
+            )
+           
+
+        }
+    })
+
+
+
+</script>
+<%- include('footer.ejs') %>

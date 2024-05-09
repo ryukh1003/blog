@@ -1,0 +1,69 @@
+<%- include('header.ejs') %>
+<main class="mw">
+    <h2>THE BLOG</h2>
+    <h3>로그인</h3>
+
+    <form action="/login" method="post" class="writeCon">
+
+        <label for="userid">아이디</label>
+        <input type="text" id="userid" name="userid" placeholder="아이디를 입력해주세요">
+
+        <label for="pw">비밀번호</label>
+        <input type="password" id="pw" name="pw" placeholder="비번입력">
+
+        <button class="loginBtn">로그인</button>
+    </form>
+    <p class="alertModal">안내 메시지출력</p>
+
+    <p>어머 아직 회원이 아니시라구요?  <a href="/signup">회원가입</a></p>
+</main>
+
+<script>
+    const loginBtn = document.querySelector('.loginBtn')
+    const alertModal = document.querySelector('.alertModal')
+    const userid = document.querySelector('#userid')
+    const pw = document.querySelector('#pw')
+
+    loginBtn.addEventListener('click', async (e)=>{
+        e.preventDefault()
+
+        if(userid.value.trim() === ''){
+            alertModal.innerHTML = `아이디를 입력해주세요`
+            userid.focus()
+            return
+        }
+        //id는 영문으로만 작성 - 정규식 표현법 활용
+        if(!/^[a-zA-Z]+$/.test(userid.value.trim())){
+            alertModal.innerHTML =`아이디는 영문으로만 작성해 주세요`
+            userid.focus()
+            return
+        }
+
+        // 패스워드 입려값 확인
+        if(pw.value.trim() === ''){
+            alertModal.innerHTML = `패스워드를 입력해주세요`
+            pw.focus()
+            return
+        }
+
+        const response = await fetch('/login', {
+            method:'POST',
+            headers: { 'Content-Type': 'application/json'},
+            body : JSON.stringify({
+                userid : userid.value,
+                pw : pw.value
+            })
+        })
+
+        console.log(response);
+        if(response.status === 401) {
+            alertModal.innerHTML = `비밀번호가 맞지 않습니다.`
+        } else if ( response.status === 404){
+            alertModal.innerHTML=`${userid.value} 아이디는 없는 아이디 입니다. 회원가입 해주세요`
+        } else if(response.status === 200){
+            location.href = '/'
+        }
+    })
+
+</script>
+<%- include('footer.ejs') %>

@@ -1,0 +1,23 @@
+<%- include('header.ejs') %>
+<main class="mw personal">
+    <h2>THE BLOG</h2>
+    <h3><%= posts[0].username %>님 포스트 리스트</h3>
+    <ul>
+        <% if(posts.length == 0) { %>
+            <li>등록된 포스트가 없습니다</li>
+        <% } else { %>
+            <% posts.map(post => { %>
+             <li>
+                <% if(post.postImgPath == null){ %>
+                    <img src="/noimg.jpg" alt="이미지 없음">
+                <% } else { %>
+                <a href="/detail/<%= post._id %>">
+                    <img src="<%= post.postImgPath %>" alt="<%= post.title %>">
+                </a>
+                <% } %>
+             </li>
+            <% }).join('') %>
+        <% } %>
+    </ul>
+</main>
+<%- include('footer.ejs') %>
